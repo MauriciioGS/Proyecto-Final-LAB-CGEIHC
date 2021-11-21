@@ -1,11 +1,11 @@
 ﻿  Ambiente.cpp
-D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(328,24): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(705,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(706,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(710,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(711,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(713,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
-D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(714,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(327,24): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(695,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(696,11): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(700,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(701,18): warning C4244: 'inicializando': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(703,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\ProyectoFinal\Ambiente.cpp(704,10): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
 LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
 soil2-debug.lib(etc1_utils.obj) : warning LNK4099: no se encontró PDB 'soil2-debug.pdb' con 'soil2-debug.lib(etc1_utils.obj)' o en 'D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\Debug\soil2-debug.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
 soil2-debug.lib(image_DXT.obj) : warning LNK4099: no se encontró PDB 'soil2-debug.pdb' con 'soil2-debug.lib(image_DXT.obj)' o en 'D:\ComputacionGrafica\Proyecto-Final-LAB-CGEIHC\ProyectoFinal\Debug\soil2-debug.pdb'; se vinculará el objeto sin tener en cuenta información de depuración

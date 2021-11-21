@@ -49,5 +49,17 @@
     <None Include="Shaders\lighting.vs">
       <Filter>Archivos de recursos</Filter>
     </None>
+    <None Include="Shaders\lamp.frag">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="Shaders\lamp.vs">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="Shaders\modelLoading.frag">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="Shaders\modelLoading.vs">
+      <Filter>Archivos de recursos</Filter>
+    </None>
   </ItemGroup>
 </Project>
