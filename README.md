@@ -12,7 +12,7 @@
 
 ### Requerimentos
 
-* Visual Studio 2019 con instalación de C++
+* Para ejecución con Visual Studio 2019 con instalación de C++ o con el ejecutable .exe:
     - Windows 7 (Última actualización), Windows 8 (2919355), Windows 10 (version 1703 o superior)
     - Procesador: 1.8 GHz (recomendado 4 núcleos o más)
     - 2.5 GB RAM mínimo, 8 GB recomendado
@@ -26,7 +26,12 @@ Descargar el proyecto desde GitHub dando click al boton verde "Code" y seleccion
     <img src="img/Captura1.JPG" alt="Descarga GitHub 1" ></img>
     <img src="img/Captura2.JPG" alt="Descarga GitHub 2" ></img> 
 <div align="justify">
-    Si selecciona "Open with Visual Studio" se abrirá el proyectop directamente en el IDE dando la opción de "Clonar repositorio", se deberá seleccionar la ruta local para guardar el repositorio y dar click en "Clonar"
+
+    Si selecciona "Open with GitHub Desktop" requiere tener esta aplicación instalada en su equipo y seguir los pasos para clonar el repositorio de manera local, una vez clonado saltar hasta "Ejecución el archivo .exe".
+
+    La selección "Download ZIP" descargará un archivo .zip del proyecto, habrá que descomprimirlo en su equipo, regresar a este manual y saltarse hasta "Ejecución el archivo .exe".
+
+    Si selecciona "Open with Visual Studio" se abrirá el proyecto directamente en el IDE dando la opción de "Clonar repositorio", se deberá seleccionar la ruta local para guardar el repositorio y dar click en "Clonar". 
 </div>
     <img src="img/Captura3.JPG" alt="Clonar repo" ></img> 
 <div align="justify">
@@ -48,9 +53,15 @@ Descargar el proyecto desde GitHub dando click al boton verde "Code" y seleccion
     <img src="img/Captura8.JPG" alt="Ejecución en Debug"></img>
 </div>
 
+### Ejecución con archivo .exe 🚀
+
+Una vez clonado el proyecto o descomprimido el ZIP: abrir la carpeta generada o ubicación del repositorio en su equipo y dirigirse a ".\ProyectoFinal\ProyectoFinal", ubicar el archivo "ProyectoFinal.exe" y dar doble click para abir. Lo anterior abrirá una ventana con el espacio virtual ejecutandose.
+
+<img src="img/Captura12.JPG" alt="Archivo executable"></img>
+
 ### Interacción con el ambiente ⛺️
 
-Una vez dentro del espacio virtual se captura el mouse para funcionar unicamente dentro de este. La interacción se da mediante el teclado y mouse de la computadora.
+Una vez abierta la ventana; estando dentro del espacio virtual se captura el mouse para funcionar unicamente dentro de este, por lo que no se observa el cursos y el movimiento del mouse solo funciona dentro de la ventana. La interacción se da mediante el teclado y mouse de la computadora.
 
 <img src="img/Captura9.JPG" alt="Programa abierto, posición inicial"></img>
 
