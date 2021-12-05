@@ -2,7 +2,7 @@
 
 # Proyecto Final Laboratorio de Computación Gráfica E Interacción Humano-Computadora 👨🏽‍💻
 
-## Manual de Usuario: Ambiente virtual 📖
+## Manual de Usuario: Ambiente virtual 📖 
 
 ### Semestre 2022-1 | Grupo 9
 
@@ -82,6 +82,10 @@ Una vez abierta la ventana; estando dentro del espacio virtual se captura el mou
 <img src="img/Captura10.JPG" alt="Animaciones 1"></img>
     * "E" : inicia/reinicia la animación de apertura en de la puerta de la     habitación 🚪 junto al cofre 📦 y la caída de los lápices de colores 🖍.
 <img src="img/Captura11.JPG" alt="Animaciones 2"></img>
+
+    * "Y" : inicia/reinicia la animación de secuencia de imágen en la televisión 📺💗.
+<img src="img/Captura13.JPG" alt="Animaciones 3"></img>
+<img src="img/Captura14.JPG" alt="Animaciones 4"></img>
 
 * Movimientos del mouse:
     * El deslizamiento del mouse 🔁 a la izquierda o derecha, arriba o abajo realiza el giro de la cámara 📷 en dicha dirección de deslizado, el field of view 🔍 se mueve como sucede con el cursor de la computadora.
