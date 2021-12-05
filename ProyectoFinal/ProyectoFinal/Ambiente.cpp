@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <windows.h>
 
 // GLEW
 #include <GL/glew.h>
@@ -18,6 +19,7 @@
 //Load Models
 #include "SOIL2/SOIL2.h"
 
+
 // Other includes
 #include "Shader.h"
 #include "Camera.h"
@@ -25,8 +27,8 @@
 #include "Texture.h"
 
 // Function prototypes
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void MouseCallback(GLFWwindow* window, double xPos, double yPos);
+void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode);
+void MouseCallback(GLFWwindow *window, double xPos, double yPos);
 void DoMovement();
 
 // Window dimensions
@@ -41,7 +43,19 @@ bool keys[1024];
 bool firstMouse = true;
 float range = 0.0f;
 
-// Variables para el control de animaciones
+// Variables de animación compleja
+float timer = 0.0f;
+float speed = 0.0f;
+float incrementou = 0.0f;
+float incrementov = 0.0f;
+bool anim = false;
+
+int i = 1;
+bool active6 = true;
+bool active7 = false;
+bool active8 = false;
+
+// Variables de animaciones sencillas
 bool active1 = false;
 bool active2 = false;
 bool active3 = false;
@@ -51,7 +65,6 @@ bool active5 = false;
 bool caida1 = false;
 bool caida2 = false;
 
-// Variables para el manejo de animaciones con rotaciones
 float rot1 = 0.0f;
 float rot2 = 0.0f;
 float rot3 = 0.0f;
@@ -59,24 +72,29 @@ float rot4 = 0.971f;
 float rotlapiz1 = 0.0f;
 float rotlapiz2 = 0.0f;
 
-// Variables para le manejo de movimiento en las transformaciones translate para mover objetos
-float movx1 = 6.724f;;
+float movx1 = 6.724f;; 
 float movz1 = -4.415f;
 float movx2 = 6.531f;
 float movy1 = 11.596f, movy2 = 11.596f;
 float movz2 = -3.564f;
 
+// Light attributes
+glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
+glm::vec3 PosIni(-95.0f, 1.0f, -45.0f);
+
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
 GLfloat lastFrame = 0.0f;  	// Time of last frame
 
-// Positions of the 4 point lights
+// Positions of the point lights
 glm::vec3 pointLightPositions[] = {
 	glm::vec3(2.0f,17.74f,6.056f),
 	glm::vec3(2.0f,17.74f,-9.0f),
 	glm::vec3(2.0f,9.75f,-2.998f),
 	glm::vec3(2.0f,9.75f,6.056f),
 };
+
+glm::vec3 LightP1;
 
 int main()
 {
@@ -86,7 +104,6 @@ int main()
 	// Create a GLFWwindow object that we can use for GLFW's functions
 	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Proyecto Final", nullptr, nullptr);
 
-	// Si el aputnador es nulo, se despliega un error pues no se pudo crear la ventana
 	if (nullptr == window)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -95,33 +112,30 @@ int main()
 		return EXIT_FAILURE;
 	}
 
-	// Si window no es nulo, la crea
 	glfwMakeContextCurrent(window);
 
-	// Se pasa la pantalla (el apuntador window) y obtiene el ancho y alto de la misma
 	glfwGetFramebufferSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
 
-	// Setea las funciones callback para el listener de teclado y mouse para la comunicación con la ventana
+	// Set the required callback functions
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetCursorPosCallback(window, MouseCallback);
 
 	// GLFW Options
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions, Activa la ventana
+	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
-
-	// Initialize GLEW to setup the OpenGL Function pointers, verifica que no exista error en la activación y seteo
+	// Initialize GLEW to setup the OpenGL Function pointers
 	if (GLEW_OK != glewInit())
 	{
 		std::cout << "Failed to initialize GLEW" << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	// Define the viewport dimensions: define las dimensiones de la ventana con las coordenadas de inicio y las de ancho, alto
+	// Define the viewport dimensions
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	// OpenGL options, Activa algunas opciones de openGL para manejar los transparentes y translucidos
+	// OpenGL options
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -129,15 +143,26 @@ int main()
 	Shader lightingShader("Shaders/lighting.vs", "Shaders/lighting.frag");
 	Shader lampShader("Shaders/lamp.vs", "Shaders/lamp.frag");
 	Shader SkyBoxshader("Shaders/SkyBox.vs", "Shaders/SkyBox.frag");
+	Shader animShader("Shaders/anim.vs", "Shaders/anim.frag");
 
 	// Load Models
+	// Casa
 	Model Piso((char*)"Models/Piso/pasto.obj");
 	Model House((char*)"Models/House/edificio_prin.obj");
+	Model Suelo((char*)"Models/House/suelo1.obj");	
 	Model VentanasPrin((char*)"Models/House/edificio_prin_ventanas.obj");
 	Model PuertaExt((char*)"Models/PuertaMain/puerta_main.obj");
+	
+	// Habitación planta baja
+	Model Sofa((char*)"Models/Sofa/sofa.obj");
+	Model Mesa2((char*)"Models/MesaSala/mesasala.obj");
+	Model Chimenea((char*)"Models/Chimenea/chimenea.obj");
+	Model Tele((char*)"Models/Tele/television.obj");
+	
+	// Habitación Rosa (PPF) 
 	Model PuertaCuarto((char*)"Models/PuertaCuarto/puerta.obj");
 	Model ChestAbajo((char*)"Models/Chest/chestabajo.obj");
-	Model ChestArriba((char*)"Models/Chest/chestarriba.obj");
+	Model ChestArriba((char*)"Models/Chest/chestarriba.obj");	
 	Model Cama((char*)"Models/Cama/cama.obj");
 	Model Tocador((char*)"Models/Tocador/tocador.obj");
 	Model TocadorEspejo((char*)"Models/Tocador/tocador_espejo.obj");
@@ -158,12 +183,12 @@ int main()
 	GLfloat vertices[] =
 	{
 		// Positions            // Normals              // Texture Coords
-		-0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,     1.0f,  0.0f,
-		0.5f,  0.5f, -0.5f,     0.0f,  0.0f, -1.0f,     1.0f,  1.0f,
-		0.5f,  0.5f, -0.5f,     0.0f,  0.0f, -1.0f,     1.0f,  1.0f,
-		-0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.0f,  1.0f,
-		-0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.05f,  0.05f,
+		0.5f, -0.5f, -0.5f,     0.0f,  0.0f, -1.0f,     0.22f,  0.05f,
+		0.5f,  0.5f, -0.5f,     0.0f,  0.0f, -1.0f,     0.22f,  0.33f,
+		0.5f,  0.5f, -0.5f,     0.0f,  0.0f, -1.0f,     0.22f,  0.33f,
+		-0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.05f,  0.33f,
+		-0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.05f,  0.05f,
 
 		-0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.0f,  0.0f,
 		0.5f, -0.5f,  0.5f,     0.0f,  0.0f,  1.0f,     1.0f,  0.0f,
@@ -200,7 +225,6 @@ int main()
 		-0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.0f,  0.0f,
 		-0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.0f,  1.0f
 	};
-
 
 	GLfloat skyboxVertices[] = {
 		// Positions
@@ -275,13 +299,13 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)0);
 	glEnableVertexAttribArray(0);
 	// Normals attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 	// Texture Coordinate attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
 
@@ -292,21 +316,40 @@ int main()
 	// We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	// Set the vertex attributes (only position data for the lamp))
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the other data in our buffer object (we don't need the normals/textures, only positions).
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)0); // Note that we skip over the other data in our buffer object (we don't need the normals/textures, only positions).
 	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
+
+	//
+	GLuint  VAOanim;
+	glGenVertexArrays(1, &VAOanim);
+	glBindVertexArray(VAOanim);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	// Normals attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	// Texture Coordinate attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
 
 	//SkyBox
 	GLuint skyboxVBO, skyboxVAO;
 	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
+	glGenBuffers(1,&skyboxVBO);
 	glBindVertexArray(skyboxVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices),&skyboxVertices,GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
 
 	// Load textures
+	// Load skybox
 	vector<const GLchar*> faces;
 	faces.push_back("SkyBox/right.tga");
 	faces.push_back("SkyBox/left.tga");
@@ -314,12 +357,41 @@ int main()
 	faces.push_back("SkyBox/bottom.tga");
 	faces.push_back("SkyBox/back.tga");
 	faces.push_back("SkyBox/front.tga");
-
+	
 	GLuint cubemapTexture = TextureLoading::LoadCubemap(faces);
 
+	// Load animacion
+	GLuint texture2;
+	glGenTextures(1, &texture2);
+
+	int textureWidth, textureHeight, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* image;
+	unsigned char* plano;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+
+	plano = stbi_load("images/ppf_spritesheet.png", &textureWidth, &textureHeight, &nrChannels, 0);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, plano);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	if (plano)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, plano);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(plano);
+
+	// Matriz proyeccion
 	glm::mat4 projection = glm::perspective(camera.GetZoom(), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 0.1f, 1000.0f);
 
-	// While infinito mientras la ventana no sea cerrada
+	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
 
@@ -330,14 +402,11 @@ int main()
 
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
-		// Llama a la función de movimiento para el movimiento de cámara mediante teclado y mouse así como para las animaciones
-		DoMovement();
+		DoMovement();		
 
-
-		// Define los valores RGBA normalizados, limpia el buffer de color para no sobrecargar la memoria
+		// Clear the colorbuffer
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 		// Use cooresponding shader when setting uniforms/drawing objects
 		lightingShader.Use();
@@ -345,8 +414,15 @@ int main()
 		glUniform3f(viewPosLoc, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 		// Set material properties
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "material.shininess"), 30.0f);
-
+		// == ==========================
+		// Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
+		// the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
+		// by defining light types as classes and set their values in there, or by using a more efficient uniform approach
+		// by using 'Uniform buffer objects', but that is something we discuss in the 'Advanced GLSL' tutorial.
+		// == ==========================
 		// Directional light
+		//-30.0f, 8.0f, 50.0f
+		//glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.direction"), 2.0f, -10.136f, 10.015f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.direction"), -10.0f, 0.1f, -30.0f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.ambient"), 0.5f, 0.5f, 0.5f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.diffuse"), 0.5f, 0.5f, 0.5f);
@@ -355,7 +431,7 @@ int main()
 		// Point light 1
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].ambient"), 0.3f, 0.3f, 0.3f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].diffuse"), 1.0f, 1.0f, 1.0f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].diffuse"), 1.0f,1.0f,1.0f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[0].specular"), 1.0f, 1.0f, 1.0f);//1.0f, 0.662f, 0.992f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].constant"), 1.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].linear"), 0.04f);
@@ -372,7 +448,7 @@ int main()
 
 		// Point light 3
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].ambient"), 0.05f, 0.05f, 0.05f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].ambient"), 0.3f, 0.3f, 0.3f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].diffuse"), 1.0f, 1.0f, 1.0f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].specular"), 1.0f, 1.0f, 1.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[2].constant"), 1.0f);
@@ -381,7 +457,7 @@ int main()
 
 		// Point light 4
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].ambient"), 0.05f, 0.05f, 0.05f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].ambient"), 0.3f, 0.3f, 0.3f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].diffuse"), 1.0f, 1.0f, 1.0f);
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[3].specular"), 1.0f, 1.0f, 1.0f);
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[3].constant"), 1.0f);
@@ -407,7 +483,6 @@ int main()
 		glm::mat4 view;
 		view = camera.GetViewMatrix();
 
-
 		// Get the uniform locations
 		GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
 		GLint viewLoc = glGetUniformLocation(lightingShader.Program, "view");
@@ -429,10 +504,13 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Piso.Draw(lightingShader);
 
-		// Casa Principal
+		// Casa
 		model = glm::mat4(1);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		House.Draw(lightingShader);
+		model = glm::mat4(1);
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Suelo.Draw(lightingShader);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -440,7 +518,17 @@ int main()
 		// Ventanas casa principal
 		model = glm::mat4(1);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		VentanasPrin.Draw(lightingShader);
+		VentanasPrin.Draw(lightingShader);	
+
+		// Espejo tocador
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(3.981f, 14.308f, 12.55f));		
+		model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniform1f(glGetUniformLocation(lightingShader.Program, "activatransparencia"), 1);
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		TocadorEspejo.Draw(lightingShader);
+
+		glDisable(GL_BLEND);
 
 		// Puerta Exterior
 		model = glm::mat4(1);
@@ -451,20 +539,37 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaExt.Draw(lightingShader);
 
-		// Espejo tocador
+		// Chimenea
 		model = glm::mat4(1);
-		model = glm::translate(model, glm::vec3(3.981f, 14.308f, 12.55f));
-		model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniform1f(glGetUniformLocation(lightingShader.Program, "activatransparencia"), 1);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		TocadorEspejo.Draw(lightingShader);
+		Chimenea.Draw(lightingShader);
 
-		glDisable(GL_BLEND);
+		// Sofa
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(1.0f, 0.34f, -9.0f));
+		model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Sofa.Draw(lightingShader);
+
+		// MesaAbajo
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(0.8f, 0.34f, -3.0f));
+		model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Mesa2.Draw(lightingShader);
+
+		// Television
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(2.0f, 0.34f, 10.0f));
+		model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		Tele.Draw(lightingShader);
 
 		// Cama
 		model = glm::mat4(1);
 		model = glm::translate(model, glm::vec3(-4.364f, 10.05f, 3.89f));
-		model = glm::scale(model, glm::vec3(1.7f, 1.7f, 1.7f));
+		model = glm::scale(model,glm::vec3(1.7f, 1.7f, 1.7f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "activatransparencia"), 1);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -535,7 +640,7 @@ int main()
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Telefono.Draw(lightingShader);
-
+	
 		model = glm::mat4(1);
 		model = glm::translate(model, glm::vec3(-8.37f, 12.75f, -0.657f));
 		model = glm::scale(model, glm::vec3(6.5f, 6.5f, 6.5f));
@@ -560,16 +665,16 @@ int main()
 		Lapiz1.Draw(lightingShader);
 
 		// Naranja
-		model = glm::mat4(1);
+		model = glm::mat4(1);		
 		model = glm::translate(model, glm::vec3(7.096f, 11.596f, -3.817f));
 		model = glm::rotate(model, glm::radians(11.551f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Lapiz2.Draw(lightingShader);
 
 		// Verde
-		model = glm::mat4(1);
+		model = glm::mat4(1);		
 		model = glm::translate(model, glm::vec3(6.934f, 11.596f, -3.817f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));		
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Lapiz3.Draw(lightingShader);
 
@@ -596,6 +701,34 @@ int main()
 
 		glBindVertexArray(0);
 
+		// Plano de animación
+		animShader.Use();
+		timer = glfwGetTime() * speed; // Obtiene el tiempo de procesador, speed es la variable que vamos modificando
+		modelLoc = glGetUniformLocation(animShader.Program, "model");
+		viewLoc = glGetUniformLocation(animShader.Program, "view");
+		projLoc = glGetUniformLocation(animShader.Program, "projection");
+
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform1f(glGetUniformLocation(animShader.Program, "time"), timer);
+		glUniform1f(glGetUniformLocation(animShader.Program, "incrementou"), incrementou);
+		glUniform1f(glGetUniformLocation(animShader.Program, "incrementov"), incrementov);
+		glUniform1f(glGetUniformLocation(animShader.Program, "texture1"), 0);
+		glBindVertexArray(VAOanim);
+
+		// Un plano
+		model = glm::mat4(1);
+		model = glm::translate(model, glm::vec3(2.3f, 2.6f, 8.7f));
+		model = glm::scale(model, glm::vec3(2.2f, 1.8f, 1.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindVertexArray(0);
+
+
 		// Also draw the lamp object, again binding the appropriate shader
 		lampShader.Use();
 		// Get location objects for the matrices on the lamp shader (these could be different on a different shader)
@@ -606,13 +739,16 @@ int main()
 		// Set matrices
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
+		model = glm::mat4(1);
+		model = glm::translate(model, lightPos);
+		//model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		// Draw the light object (using light's vertex attributes)
 		glBindVertexArray(lightVAO);
 		for (GLuint i = 0; i < 4; i++)
 		{
 			model = glm::mat4(1);
-			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::translate(model, pointLightPositions[i]);			
 			model = glm::scale(model, glm::vec3(0.05f)); // Make it a smaller cube	
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -645,15 +781,15 @@ int main()
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &skyboxVAO);
 	glDeleteBuffers(1, &skyboxVBO);
+	
 	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
-
 	return 0;
 }
 
 
 // Is called whenever a key is pressed/released via GLFW
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode)
 {
 	if (GLFW_KEY_ESCAPE == key && GLFW_PRESS == action)
 	{
@@ -685,11 +821,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 		active4 = !active4;
 		active5 = !active5;
 	}
+
+	if (keys[GLFW_KEY_Y]) {
+		anim = !anim;
+	}
 }
 
-void MouseCallback(GLFWwindow* window, double xPos, double yPos)
+void MouseCallback(GLFWwindow *window, double xPos, double yPos)
 {
-
 	if (firstMouse)
 	{
 		lastX = xPos;
@@ -713,21 +852,16 @@ void DoMovement()
 	if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP])
 	{
 		camera.ProcessKeyboard(FORWARD, deltaTime);
-
 	}
 
 	if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN])
 	{
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
-
-
 	}
 
 	if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT])
 	{
 		camera.ProcessKeyboard(LEFT, deltaTime);
-
-
 	}
 
 	if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT])
@@ -736,16 +870,14 @@ void DoMovement()
 	}
 
 	// Animación cofre
-	if (active1) {
+	if (active1){
 		if (rot1 < 90.0f) {
 			rot1 += 1.0f;
-		}
-		else {
+		}else {
 			rot1 = 90.0f;
 		}
-	}
-	else {
-		if (rot1 > 0.0f) {
+	}else {
+		if (rot1 > 0.0f){
 			rot1 -= 1.0f;
 		}
 		else {
@@ -757,16 +889,13 @@ void DoMovement()
 	if (active2) {
 		if (rot2 < 75.0f) {
 			rot2 += 1.0f;
-		}
-		else {
+		}else {
 			rot2 = 75.0f;
 		}
-	}
-	else {
+	}else {
 		if (rot2 > 0.0f) {
 			rot2 -= 1.0f;
-		}
-		else {
+		}else {
 			rot2 = 0.0f;
 		}
 	}
@@ -776,35 +905,30 @@ void DoMovement()
 		if (rot3 > -90.0f) {
 			rot3 -= 1.0f;
 			rot4 -= 0.04f;
-		}
-		else {
+		}else {
 			rot3 = -90.0f;
-			rot4 = -2.8f;
+			rot4 = -2.8f;			
 		}
-	}
-	else {
+	}else {
 		if (rot3 < 0.0f) {
 			rot3 += 1.0f;
 			rot4 += 0.04f;
-		}
-		else {
+		}else {
 			rot3 = 0.0f;
 			rot4 = 0.971f;
 		}
 	}
 
 	// Animación color 1
-	if (active4) {
-		if (movx1 < 4.5f) {
+	if (active4){
+		if (movx1 < 4.5f){
 			caida1 = true;
-		}
-		else {
+		}else{
 			rotlapiz1 += 0.001f;
 			movx1 -= 0.01f;
 			movz1 -= 0.01f;
 		}
-	}
-	else {
+	}else{
 		movx1 = 6.724f;;
 		movz1 = -4.415f;
 		movy1 = 11.596f;
@@ -813,24 +937,21 @@ void DoMovement()
 		if (movy1 > 10.1) {
 			rotlapiz1 += 0.001f;
 			movy1 -= 0.1f;
-		}
-		else {
+		}else{
 			caida1 = !caida1;
 		}
 	}
 
 	// Animación color 2
 	if (active5) {
-		if (movx2 < 4.4f) {
+		if (movx2 < 4.4f){
 			caida2 = true;
-		}
-		else {
+		}else{
 			rotlapiz2 += 0.001f;
 			movx2 -= 0.01f;
 			movz2 += 0.01f;
 		}
-	}
-	else {
+	}else{
 		movx2 = 6.531f;
 		movy2 = 11.596f;
 		movz2 = -3.564f;
@@ -839,9 +960,76 @@ void DoMovement()
 		if (movy2 > 10.1) {
 			rotlapiz2 += 0.001f;
 			movy2 -= 0.1f;
-		}
-		else {
+		}else {
 			caida2 = !caida2;
 		}
+	}
+
+	// Animación televisión
+	if (anim) {		
+		if (active6) {
+			if (incrementou < 1) {
+				//incrementov = 0.05f;
+				if (i == 3 || i == 4) {
+					Sleep(200);
+					incrementou += 0.10f;
+					i++;
+				}
+				else {
+					Sleep(200);
+					incrementou += 0.18f;
+					i++;
+				}
+			}
+			else {
+				incrementou = 0.0f;
+				incrementov = 0.283f;
+				active6 = !active6;
+				active7 = !active7;
+				i = 1;
+			}
+		}
+		if (active7) {
+			if (incrementou < 1) {
+				if (i == 3 || i == 4) {
+					Sleep(200);
+					incrementou += 0.10f;
+					i++;
+				}
+				else {
+					Sleep(200);
+					incrementou += 0.18f;
+					i++;
+				}
+			}
+			else {
+				incrementou = 0.0f;
+				incrementov = 0.283f;
+				active7 = !active7;
+				active8 = !active8;
+				i = 1;
+			}
+		}
+		if (active8) {
+			if (incrementou < 1) {
+				if (i == 3 || i == 4) {
+					Sleep(200);
+					incrementou += 0.10f;
+					i++;
+				}
+				else {
+					Sleep(200);
+					incrementou += 0.18f;
+					i++;
+				}
+			}
+			else {
+				incrementou = 0.0f;
+				incrementov = 0.566f;
+				active8 = !active8;
+				active6 = !active6;
+				i = 1;
+			}
+		}	
 	}
 }
