@@ -84,8 +84,8 @@ Una vez abierta la ventana; estando dentro del espacio virtual se captura el mou
 <img src="img/Captura11.JPG" alt="Animaciones 2"></img>
 
     * "Y" : inicia/reinicia la animación de secuencia de imágen en la televisión 📺💗.
-<img src="img/Captura13.JPG" alt="Animaciones 3"></img>
-<img src="img/Captura14.JPG" alt="Animaciones 4"></img>
+<img src="img/Captura13.jpg" alt="Animaciones 3"></img>
+<img src="img/Captura14.jpg" alt="Animaciones 4"></img>
 
 * Movimientos del mouse:
     * El deslizamiento del mouse 🔁 a la izquierda o derecha, arriba o abajo realiza el giro de la cámara 📷 en dicha dirección de deslizado, el field of view 🔍 se mueve como sucede con el cursor de la computadora.
